@@ -9,6 +9,8 @@ I simply added basic provisioning for:
 Apache 2.2
 MySQL 5.5
 PHP Version 5.5
+Git
+Drush
 
 This is meant for local and dev use only. This is not a production server. 
 
