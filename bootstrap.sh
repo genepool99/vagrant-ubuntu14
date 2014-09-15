@@ -27,3 +27,4 @@ apt-get install -y php5-tidy
 apt-get install -y php5-mcrypt
 apt-get install -y php5-xdebug
 apt-get install -y php5-xhprof
+apt-get install -y php5-json
