@@ -26,10 +26,12 @@ provision() {
   apt-get install -y apache2
   rm -rf /var/www
   ln -fs /vagrant /var/www
-
+  sudo a2enmod rewrite
   # Apache conf overrides
   ensureFilePresentMd5 /vagrant/projectProvision/apache2.conf /etc/apache2/apache2.conf "custom httpd settings"
   ensureFilePresentMd5 /vagrant/projectProvision/envvars /etc/apache2/envvars "custom httpd settings"
+  ensureFilePresentMd5 /vagrant/projectProvision/000-default.conf /etc/apache2/sites-available/000-default.conf "custom vhost settings"
+
 
   #MySQL
   apt-get install debconf-utils -y
