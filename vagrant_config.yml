@@ -4,6 +4,6 @@ hostname: 'www.example.com'
 ip: '192.168.25.25'
 
 dbHost: "localhost"
-dbName: "directivesupervi"
+dbName: "project"
 dbUser: "root"
 dbPass: ""
