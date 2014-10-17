@@ -9,6 +9,7 @@
 # $4 = dbName
 # $5 = dbUser
 # $6 = dbPass
+# $7 = dbRootPass
 
 # Ensures if the specified file is present and the md5 checksum is equal
 ensureFilePresentMd5 () {
@@ -46,29 +47,29 @@ provision() {
   #MySQL
   apt-get install debconf-utils -y
   #One of these pairs worked. All three pairs are not needed. Figure out which one works and remove the others
-  debconf-set-selections <<< "mysql-server-5.5 mysql-server-5.5/root_password password pass"
-  debconf-set-selections <<< "mysql-server-5.5 mysql-server-5.5/root_password_again password pass"
-  debconf-set-selections <<< "mysql-server mysql-server/root_password password pass"
-  debconf-set-selections <<< "mysql-server mysql-server/root_password_again password pass"
-  debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password password pass"
-  debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password_again password pass"
+  debconf-set-selections <<< "mysql-server-5.5 mysql-server-5.5/root_password password $7"
+  debconf-set-selections <<< "mysql-server-5.5 mysql-server-5.5/root_password_again password $7"
+  debconf-set-selections <<< "mysql-server mysql-server/root_password password $7"
+  debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $7"
+  debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password password $7"
+  debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password_again password $7"
   sudo apt-get install -y mysql-server-5.5 libapache2-mod-auth-mysql
   
   #If the mysqlImport file was configured, set up the db and import it. 
   if [ -f /vagrant/mysqlImport.sql ]
     then
       #create the project's db
-      mysql -u root -h $3 -Bse "CREATE DATABASE $4;"
+      mysql -u root -p$7 -h $3 -Bse "CREATE DATABASE $4;"
       echo "Database $4 Created";
       #grant access
       if [ "$6" = "" ]
         then
-          mysql -u root -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
+          mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
           #import the db. 
           mysql -u $5 $4 < /vagrant/mysqlImport.sql
           echo "Database imported - sql user password not used";
         else
-          mysql -u root -h $3 -Bse "GRANT ALL ON $4.* to $5@'%' IDENTIFIED BY '$6';"
+          mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%' IDENTIFIED BY '$6';"
           mysql -u $5 -p$6 $4 < /vagrant/mysqlImport.sql
           echo "Database imported - sql user password was used";
       fi
@@ -110,4 +111,4 @@ provision() {
   sudo chmod 0755 /vagrant/html/
 }
 
-provision
+provision $1 $2 $3 $4 $5 $6 $7

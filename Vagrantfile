@@ -46,7 +46,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #PROVISIONING
   config.vm.provision "shell" do |s|
     s.path = "bootstrap.sh"
-    s.args   = "#{vconfig['hostname']} #{vconfig['ip']} #{vconfig['dbHost']} #{vconfig['dbName']} #{vconfig['dbUser']} #{vconfig['dbPass']}"
+    s.args   = "#{vconfig['hostname']} #{vconfig['ip']} #{vconfig['dbHost']} #{vconfig['dbName']} #{vconfig['dbUser']} #{vconfig['dbPass']} #{vconfig['dbRootPass']}"
   end
 
 end

@@ -6,4 +6,5 @@ ip: '192.168.25.25'
 dbHost: "localhost"
 dbName: "project"
 dbUser: "root"
-dbPass: ""
+dbPass: "pass"
+dbRootPass: "pass" #Can't be Blank For Some Reason
