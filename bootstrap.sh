@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+#!/usr/bin/env bash
+
+#Variables loaded via YAML in the vagrantfile are passed as:
+# $1 = hostname
+# $2 = ip
+# $2 = dbHost
+# $4 = dbName
+# $5 = dbUser
+# $6 = dbPass
+
 # Ensures if the specified file is present and the md5 checksum is equal
 ensureFilePresentMd5 () {
     source=$1
@@ -43,7 +53,30 @@ provision() {
   debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password password pass"
   debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password_again password pass"
   sudo apt-get install -y mysql-server-5.5 libapache2-mod-auth-mysql
-
+  
+  #If the mysqlImport file was configured, set up the db and import it. 
+  if [ -f /vagrant/mysqlImport.sql ]
+    then
+      #create the project's db
+      mysql -u root -h $3 -Bse "CREATE DATABASE $4;"
+      echo "Database $4 Created";
+      #grant access
+      if [ "$6" = "" ]
+        then
+          mysql -u root -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
+          #import the db. 
+          mysql -u $5 $4 < /vagrant/mysqlImport.sql
+          echo "Database imported - sql user password not used";
+        else
+          mysql -u root -h $3 -Bse "GRANT ALL ON $4.* to $5@'%' IDENTIFIED BY '$6';"
+          mysql -u $5 -p$6 $4 < /vagrant/mysqlImport.sql
+          echo "Database imported - sql user password was used";
+      fi
+      echo "Database: User $5 granted access to db and a password was set"; 
+    else
+      echo "Database Creation Skipped because the mysqlImport.sql file was not configured.";
+  fi
+  
   #PHP
   apt-get install -y php5 libapache2-mod-php5 php5-mcrypt
   apt-get install -y php5-curl

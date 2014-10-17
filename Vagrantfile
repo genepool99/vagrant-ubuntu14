@@ -1,13 +1,19 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+#load the variables.
+# VagrantFile
+vagrant_root = File.dirname(__FILE__)
+require 'yaml'
+vconfig = YAML::load_file("#{vagrant_root}/vagrant_config.yml")
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|  
   
   #UPDATE THIS - Hostname
-  config.vm.hostname = "www.example.com"
+  config.vm.hostname = vconfig['hostname']
   
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
@@ -24,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  config.vm.network :private_network, ip: "192.168.25.25"
+  config.vm.network :private_network, ip: vconfig['ip']
 
   
   # Share an additional folder to the guest VM. The first argument is
@@ -38,6 +44,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.ssh.forward_agent = true
   
   #PROVISIONING
-  config.vm.provision :shell, path: "bootstrap.sh"
+  config.vm.provision "shell" do |s|
+    s.path = "bootstrap.sh"
+    s.args   = "#{vconfig['hostname']} #{vconfig['ip']} #{vconfig['dbHost']} #{vconfig['dbName']} #{vconfig['dbUser']} #{vconfig['dbPass']}"
+  end
 
 end
