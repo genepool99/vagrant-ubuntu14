@@ -43,7 +43,6 @@ provision() {
   ensureFilePresentMd5 /vagrant/projectProvision/envvars /etc/apache2/envvars "custom httpd settings"
   ensureFilePresentMd5 /vagrant/projectProvision/000-default.conf /etc/apache2/sites-available/000-default.conf "custom vhost settings"
 
-
   #MySQL
   apt-get install debconf-utils -y
   #One of these pairs worked. All three pairs are not needed. Figure out which one works and remove the others
@@ -54,30 +53,42 @@ provision() {
   debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password password $7"
   debconf-set-selections <<< "mysql-server mysql-server-5.5/root_password_again password $7"
   sudo apt-get install -y mysql-server-5.5 libapache2-mod-auth-mysql
-  
-  #If the mysqlImport file was configured, set up the db and import it. 
-  if [ -f /vagrant/mysqlImport.sql ]
+  # MySQL conf overrides
+  ensureFilePresentMd5 /vagrant/projectProvision/my.cnf /etc/mysql/my.cnf "custom mysql settings"
+  #restart Apache/PHP
+  echo "Restarting MySQL..."; sudo service mysql restart; echo "...done";
+  #create the project's db
+  mysql -u root -p$7 -h $3 -Bse "CREATE DATABASE $4;"
+  echo "Database $4 Created";
+  #grant access, Commands differ if there is a password or not. 
+  if [ "$6" = "" ]
     then
-      #create the project's db
-      mysql -u root -p$7 -h $3 -Bse "CREATE DATABASE $4;"
-      echo "Database $4 Created";
-      #grant access
-      if [ "$6" = "" ]
+      mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
+      echo "Database: User $5 granted access to db and a password was set"; 
+      #import the db. 
+      mysql -u $5 $4 < /vagrant/mysqlImport.sql
+      echo "Database imported - sql user password not used";
+      if [ -f /vagrant/mysqlImport.sql ]
         then
-          mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
           #import the db. 
           mysql -u $5 $4 < /vagrant/mysqlImport.sql
           echo "Database imported - sql user password not used";
         else
-          mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%' IDENTIFIED BY '$6';"
+          echo "A SQL Import script was not found - no data imported.";
+      fi
+    else
+      mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%' IDENTIFIED BY '$6';"
+      echo "Database: User $5 granted access to db and a password was set";
+      if [ -f /vagrant/mysqlImport.sql ]
+        then
+          #import the db. 
           mysql -u $5 -p$6 $4 < /vagrant/mysqlImport.sql
           echo "Database imported - sql user password was used";
+        else
+          echo "A SQL Import script was not found - no data imported.";
       fi
-      echo "Database: User $5 granted access to db and a password was set"; 
-    else
-      echo "Database Creation Skipped because the mysqlImport.sql file was not configured.";
   fi
-  
+
   #PHP
   apt-get install -y php5 libapache2-mod-php5 php5-mcrypt
   apt-get install -y php5-curl
