@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#!/usr/bin/env bash
-
 #Variables loaded via YAML in the vagrantfile are passed as:
 # $1 = hostname
 # $2 = ip
@@ -64,10 +62,8 @@ provision() {
   if [ "$6" = "" ]
     then
       mysql -u root -p$7 -h $3 -Bse "GRANT ALL ON $4.* to $5@'%';"
-      echo "Database: User $5 granted access to db and a password was set"; 
+      echo "Database: User $5 granted access to db and a password was not set"; 
       #import the db. 
-      mysql -u $5 $4 < /vagrant/mysqlImport.sql
-      echo "Database imported - sql user password not used";
       if [ -f /vagrant/mysqlImport.sql ]
         then
           #import the db. 
