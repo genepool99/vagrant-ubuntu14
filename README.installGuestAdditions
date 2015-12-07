@@ -1,0 +1,15 @@
+# >vagrant plugin install vagrant-vbguest 
+# in folder containing Vagrantfile
+
+# Location:
+# linux : /usr/share/virtualbox/VBoxGuestAdditions.iso
+# Mac : /Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso
+# Windows : %PROGRAMFILES%/Oracle/VirtualBox/VBoxGuestAdditions.iso
+
+# Can be overridden in the Vagrantfile:
+# Vagrant::Config.run do |config|
+#  config.vbguest.iso_path = "#{ENV['HOME']}/Downloads/VBoxGuestAdditions.iso"
+# or
+#  config.vbguest.iso_path = "http://company.server/VirtualBox/$VBOX_VERSION/VBoxGuestAdditions.iso"
+# end
+
