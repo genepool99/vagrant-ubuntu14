@@ -7,6 +7,12 @@ vagrant_root = File.dirname(__FILE__)
 require 'yaml'
 vconfig = YAML::load_file("#{vagrant_root}/vagrant_config.yml")
 
+# install vagrant-vbguest plugin so shared folder works
+required_plugins = %w( vagrant-vbguest )
+required_plugins.each do |plugin|
+  system "vagrant plugin install #{plugin}" unless Vagrant.has_plugin? plugin
+end
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
