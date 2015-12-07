@@ -108,10 +108,10 @@ provision() {
   sudo apt-get install -y git
 
   #Drush
-  sudo apt-get install -y php-pear
-  sudo pear channel-discover pear.drush.org
-  sudo pear install drush/drush
-  sudo drush version
+  wget http://files.drush.org/drush.phar
+  chmod +x drush.phar
+  sudo mv drush.phar /usr/local/bin/drush
+  drush init
 
   #Fixes Permissions Issue
   sudo chmod 0755 /var/www/html/
