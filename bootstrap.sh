@@ -35,6 +35,7 @@ provision() {
   apt-get install -y apache2
   rm -rf /var/www
   ln -fs /vagrant /var/www
+  mkdir /var/www/html
   sudo a2enmod rewrite
   # Apache conf overrides
   ensureFilePresentMd5 /vagrant/projectProvision/apache2.conf /etc/apache2/apache2.conf "custom httpd settings"
